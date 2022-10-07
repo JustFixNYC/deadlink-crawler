@@ -1,0 +1,10 @@
+name: 'Deadlink Scan'
+description: 'Scan a site for dead links'
+inputs:
+  site-url:
+    description: 'Site to scan for deadlinks'
+    required: true
+    default: 'https://www.justfix.org/en/'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
