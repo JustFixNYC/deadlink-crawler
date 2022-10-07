@@ -10,7 +10,7 @@ jobs:
     name: Deadlink crawler
     steps:
       - name: Scan links
-        uses: shakao-2/deadlink-crawl-test@v1.7
+        uses: JustFixNYC/deadlink-crawler@v1.0
         with:
           site-url: "https://www.justfix.org/en/learn"
           token: ${{ secrets.GITHUB_TOKEN }}
