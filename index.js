@@ -13,7 +13,7 @@ try {
   let brokenLinks = [];
 
   const options = {
-    excludedKeywords: ["linkedin.com", "netlify.com"]
+    excludedKeywords: ["linkedin.com", "netlify.com", "x.com"]
   }
 
   const handlers = {
