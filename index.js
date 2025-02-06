@@ -1,62 +1,81 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
-const { SiteChecker } = require('broken-link-checker');
+const core = require("@actions/core");
+const github = require("@actions/github");
+import { LinkChecker } from "linkinator";
 
+const skipLinks = [
+  "images.ctfassets.net",
+  "linkedin.com",
+  "netlify.com",
+  "x.com",
+];
 
 try {
-  const siteUrl = core.getInput('site-url');
-
-  const repoToken = core.getInput('token');
+  const siteUrl = core.getInput("site-url");
+  const repoToken = core.getInput("token");
   const octokit = github.getOctokit(repoToken);
 
-  const result = {};
-  let brokenLinks = [];
+  async function checkLinks() {
+    const checker = new LinkChecker();
 
-  const options = {
-    excludedKeywords: ["linkedin.com", "netlify.com", "x.com"]
-  }
+    checker.on("pagestart", (url) => {
+      console.log(`Scanning ${url}`);
+    });
 
-  const handlers = {
-    link: (result) => {
-      if (result.broken) {
-        brokenLinks.push(result.url.original);
-      }
-    },
-    page: (error, pageURL) => {
-      console.log(`Scanned... ${pageURL}`);
-      if (brokenLinks.length) {
-        console.log(`${brokenLinks.length} broken links\r\n`);
-        result[pageURL] = brokenLinks;
-        brokenLinks = [];
-      }
-    },
-    site: () => {
-      console.log("Done scanning!");
+    const result = await checker.check({
+      path: siteUrl,
+      recurse: true,
+      linksToSkip: skipLinks,
+    });
 
-      let count = 0;
-      let issue = "## Dead links found";
-      Object.keys(result).forEach(page => {
-        issue += `\r\n \r\n- [ ] ${page}`;
-        for (let link of result[page]) {
-          issue += `\r\n  - [ ] ${link}`;
-          count += 1;
-        }
+    console.log(result.passed ? "PASSED :D" : "FAILED :(");
+
+    console.log(`Scanned total of ${result.links.length} links!`);
+
+    const brokenLinks = result.links.filter((x) => x.state === "BROKEN");
+
+    console.log(`Detected ${brokenLinks.length} broken links.`);
+
+    if (brokenLinks.length === 0) return;
+
+    console.log("Opening GitHub issue for broken links");
+
+    const uniqueUrls = [...new Set(brokenLinks.map((x) => x.url))];
+    const issueByURL = uniqueUrls
+      .map((url) => {
+        const pages = brokenLinks
+          .filter((x) => x.url === url)
+          .map((x) => x.parent);
+
+        return `- [ ] ${url}\r\n  - [ ] ${pages.join("\r\n  - [ ]")}`;
       })
+      .join("\r\n \r\n");
 
-      console.log(`${count} broken links found`);
+    const uniquePages = [...new Set(brokenLinks.map((x) => x.parent))];
+    const issueByPage = uniquePages
+      .map((page) => {
+        const urls = brokenLinks
+          .filter((x) => x.parent === page)
+          .map((x) => x.url);
 
-      const context = github.context;
-      octokit.rest.issues.create({
-        ...context.repo,
-        title: 'Learning center deadlinks',
-        body: issue,
-      });
-    },
+        return `- [ ] ${page}\r\n  - [ ] ${urls.join("\r\n  - [ ] ")}`;
+      })
+      .join("\r\n \r\n");
+
+    const issueBody =
+      `## Dead Links by URL\r\n\r\n${issueByURL}\r\n\r\n` +
+      `## Dead Links by Page\r\n\r\n${issueByPage}`;
+
+    console.log(issueBody);
+
+    const context = github.context;
+    octokit.rest.issues.create({
+      ...context.repo,
+      title: "Dead Links",
+      body: issueBody,
+    });
   }
 
-  const siteChecker = new SiteChecker(options, handlers);
-  siteChecker.enqueue(siteUrl);
-
+  checkLinks();
 } catch (error) {
   core.setFailed(error.message);
 }
