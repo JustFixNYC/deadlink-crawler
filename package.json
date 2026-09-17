@@ -1,30 +1,31 @@
 {
-  "name": "deadlink-crawl-test",
-  "version": "2.0.0",
-  "description": "",
+  "name": "deadlink-crawler",
+  "version": "3.0.0",
+  "description": "Hybrid deadlink checker for JustFix front-end projects",
   "type": "module",
-  "main": "index.js",
+  "bin": {
+    "deadlink-check": "./dist/cli.js"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "ncc build index.js --license licenses.txt"
+    "build": "tsc && ncc build src/action.ts -o dist --external playwright --license licenses.txt && ncc build src/cli.ts -o dist-cli --external playwright && cp dist-cli/index.js dist/cli.js",
+    "check": "node dist/cli.js",
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/JustFixNYC/deadlink-crawler.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/JustFixNYC/deadlink-crawler/issues"
-  },
-  "homepage": "https://github.com/JustFixNYC/deadlink-crawler#readme",
+  "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.10.0",
-    "@actions/github": "^5.1.1",
-    "linkinator": "^6.1.2"
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0",
+    "glob": "^11.0.0",
+    "playwright": "^1.49.0",
+    "yaml": "^2.6.1"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.38.3"
+    "@types/node": "^22.10.0",
+    "@vercel/ncc": "^0.38.3",
+    "typescript": "^5.7.2"
   }
 }

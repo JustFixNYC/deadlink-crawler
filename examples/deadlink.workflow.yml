@@ -1,0 +1,21 @@
+# Default deadlink workflow for JustFix front-end projects.
+# Copy to .github/workflows/deadlink.yml in your repo.
+on:
+  schedule:
+    # Monthly: 1st of each month at 05:00 UTC
+    - cron: "0 5 1 * *"
+  workflow_dispatch:
+
+jobs:
+  find_dead_links:
+    runs-on: ubuntu-latest
+    name: Deadlink checker
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Scan for dead links
+        uses: JustFixNYC/deadlink-crawler@v3.0
+        with:
+          config-path: deadlink.config.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
