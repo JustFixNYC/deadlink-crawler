@@ -15792,6 +15792,8 @@ function extractSourceLinks(workspace, config) {
 
 ;// CONCATENATED MODULE: ./src/report-issue.ts
 const ISSUE_TITLE = "Dead Links";
+const GITHUB_API_VERSION = "2026-03-10";
+const GITHUB_API_HEADERS = { "X-GitHub-Api-Version": GITHUB_API_VERSION };
 function formatReference(ref) {
     if (ref.source && ref.line) {
         return `\`${ref.source}:${ref.line}\``;
@@ -15889,6 +15891,7 @@ async function reportIssue(octokit, repo, report) {
         ...repo,
         state: "open",
         per_page: 100,
+        headers: GITHUB_API_HEADERS,
     });
     const existing = openIssues.find((issue) => issue.title === ISSUE_TITLE);
     if (existing) {
@@ -15897,6 +15900,7 @@ async function reportIssue(octokit, repo, report) {
             ...repo,
             issue_number: existing.number,
             body,
+            headers: GITHUB_API_HEADERS,
         });
         return;
     }
@@ -15905,6 +15909,7 @@ async function reportIssue(octokit, repo, report) {
         ...repo,
         title: ISSUE_TITLE,
         body,
+        headers: GITHUB_API_HEADERS,
     });
 }
 

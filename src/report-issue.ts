@@ -4,6 +4,8 @@ type Octokit = ReturnType<typeof github.getOctokit>;
 import type { DeadlinkReport, ValidationResult } from "./types.js";
 
 const ISSUE_TITLE = "Dead Links";
+const GITHUB_API_VERSION = "2026-03-10";
+const GITHUB_API_HEADERS = { "X-GitHub-Api-Version": GITHUB_API_VERSION };
 
 function formatReference(ref: ValidationResult["references"][number]): string {
   if (ref.source && ref.line) {
@@ -120,6 +122,7 @@ export async function reportIssue(
     ...repo,
     state: "open",
     per_page: 100,
+    headers: GITHUB_API_HEADERS,
   });
 
   const existing = openIssues.find((issue) => issue.title === ISSUE_TITLE);
@@ -130,6 +133,7 @@ export async function reportIssue(
       ...repo,
       issue_number: existing.number,
       body,
+      headers: GITHUB_API_HEADERS,
     });
     return;
   }
@@ -139,5 +143,6 @@ export async function reportIssue(
     ...repo,
     title: ISSUE_TITLE,
     body,
+    headers: GITHUB_API_HEADERS,
   });
 }

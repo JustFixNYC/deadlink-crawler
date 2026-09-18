@@ -47,7 +47,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: JustFixNYC/deadlink-crawler@v3.0.1
+      - uses: JustFixNYC/deadlink-crawler@v3.0.2
         with:
           config-path: deadlink.config.yml
           token: ${{ secrets.GITHUB_TOKEN }}
