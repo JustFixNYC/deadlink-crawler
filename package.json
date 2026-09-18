@@ -1,13 +1,13 @@
 {
   "name": "deadlink-crawler",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Hybrid deadlink checker for JustFix front-end projects",
   "type": "module",
   "bin": {
     "deadlink-check": "./dist/cli.js"
   },
   "scripts": {
-    "build": "tsc && ncc build src/action.ts -o dist --external playwright --license licenses.txt && ncc build src/cli.ts -o dist-cli --external playwright && cp dist-cli/index.js dist/cli.js",
+    "build": "tsc && ncc build src/action.ts -o dist --external playwright --external @actions/core --external @actions/github --license licenses.txt && ncc build src/cli.ts -o dist-cli --external playwright && cp dist-cli/index.js dist/cli.js",
     "check": "node dist/cli.js",
     "typecheck": "tsc --noEmit"
   },

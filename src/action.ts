@@ -1,20 +1,19 @@
-import core from "@actions/core";
-import github from "@actions/github";
+import { getInput, setFailed } from "@actions/core";
+import { context as githubContext, getOctokit } from "@actions/github";
 import { resolve } from "node:path";
 import { runCheck } from "./run-check.js";
 
 async function main(): Promise<void> {
-  const configPath = core.getInput("config-path") || "deadlink.config.yml";
-  const token = core.getInput("token");
-  const skipLiveCrawl = core.getInput("skip-live-crawl") === "true";
+  const configPath = getInput("config-path") || "deadlink.config.yml";
+  const token = getInput("token");
+  const skipLiveCrawl = getInput("skip-live-crawl") === "true";
   const workspace = process.env.GITHUB_WORKSPACE ?? process.cwd();
 
   if (!token) {
     throw new Error("Missing required input: token");
   }
 
-  const octokit = github.getOctokit(token);
-  const context = github.context;
+  const octokit = getOctokit(token);
 
   await runCheck({
     workspace: resolve(workspace),
@@ -22,11 +21,17 @@ async function main(): Promise<void> {
     skipLiveCrawl,
     github: {
       octokit,
-      repo: context.repo,
+      repo: githubContext.repo,
     },
   });
 }
 
 main().catch((error) => {
-  core.setFailed(error instanceof Error ? error.message : String(error));
+  const message = error instanceof Error ? error.message : String(error);
+  console.error(message);
+  try {
+    setFailed(message);
+  } catch {
+    process.exit(1);
+  }
 });
