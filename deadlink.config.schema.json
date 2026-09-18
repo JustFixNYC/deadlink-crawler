@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Deadlink Config",
+  "type": "object",
+  "required": ["siteUrl"],
+  "properties": {
+    "siteUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Production site URL (no trailing slash)"
+    },
+    "locales": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": ["en"]
+    },
+    "publicRoutes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Public routes to crawl with Playwright, per locale"
+    },
+    "sourceGlobs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Glob patterns for source link extraction"
+    },
+    "skipPatterns": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Regex patterns for URLs to skip validation"
+    },
+    "dynamicUrlSamples": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Sample values for template URLs containing ${variable}"
+    }
+  }
+}
